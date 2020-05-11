@@ -13,6 +13,7 @@ int main() {
         Parser parser("../students.csv", "../Students");
         parser.csvToBinaryFile();
         RandomFile randomFile("../Students");
+        randomFile.showIndexRandomFile();
         if (menu == 1) {
             int option;
             bool back = false;

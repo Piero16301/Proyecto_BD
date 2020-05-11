@@ -32,6 +32,11 @@ public:
         cout << "Surname: " << this->Surname << endl;
         cout << "Career: " << this->Career << endl;
     }
+
+    int getCode() {
+        return this->Code;
+    }
+
 };
 
 std::ostream & operator << (std::ostream & stream, Record & record) {
