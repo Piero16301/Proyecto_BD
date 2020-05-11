@@ -7,29 +7,25 @@
 #include <sstream>
 #include <cstring>
 
-using namespace std;
+#include "Record.h"
 
-struct Student {
-    int Code;
-    char Name[15];
-    char Surname[20];
-    char Career[15];
-} Student;
+using namespace std;
 
 class Parser {
 private:
     string csvFile;
+    string binFile;
 
 public:
-    explicit Parser(string file) : csvFile{std::move(file)} {}
+    explicit Parser(string file, string binary) : csvFile{std::move(file)}, binFile{std::move(binary)} {}
 
     void csvToBinaryFile() {
         ifstream file(csvFile);
         if (file.is_open()) {
             string fields[4], row;
             getline(file, row); //Skip field titles
-            FILE *binaryFile;
-            binaryFile = fopen("../Students", "w");
+            fstream binaryFile;
+            binaryFile.open(binFile, std::ios::out | std::ios::binary);
             while (!file.eof()) {
                 getline(file, row);
                 istringstream istringstream1(row);
@@ -38,14 +34,10 @@ public:
                     fields[counter] = row;
                     counter++;
                 }
-                struct Student student{};
-                student.Code = stoi(fields[0]);
-                strcpy(student.Name, fields[1].c_str());
-                strcpy(student.Surname, fields[2].c_str());
-                strcpy(student.Career, fields[3].c_str());
-                fwrite(&student, sizeof(Student), 1, binaryFile);
+                Record record(stoi(fields[0]), fields[1].c_str(), fields[2].c_str(), fields[3].c_str());
+                binaryFile << record;
             }
-            fclose(binaryFile);
+            binaryFile.close();
         }
     }
 };

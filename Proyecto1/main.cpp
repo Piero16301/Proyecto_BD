@@ -10,7 +10,7 @@ int main() {
         cout << "======== SELECT AN OPTION ========\n1. RANDOM FILE\n2. STATIC HASH\n3. EXIT\n";
         cout << "Insert an option: ";
         cin >> menu;
-        Parser parser("../students.csv");
+        Parser parser("../students.csv", "../Students");
         parser.csvToBinaryFile();
         if (menu == 1) {
             int option;
@@ -24,16 +24,12 @@ int main() {
                 switch (option) {
                     case 1: {
                         //Insert a new record to current Random File structure
-                        FILE *temp;
-                        struct Student student {};
-                        temp = fopen("../Students", "r");
-                        while (fread(&student, sizeof(Student), 1, temp)) {
-                            cout << endl << "Code: " << student.Code << endl;
-                            cout << "Name: " << student.Name << endl;
-                            cout << "Surname: " << student.Surname << endl;
-                            cout << "Career: " << student.Career << endl;
+                        Record record{};
+                        ifstream temp;
+                        temp.open("../Students", std::ios::in | std::ios::binary);
+                        while (temp >> record) {
+                            record.showData();
                         }
-                        fclose(temp);
                         break;
                     }
                     case 2: {
