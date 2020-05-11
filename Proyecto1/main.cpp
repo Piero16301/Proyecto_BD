@@ -19,7 +19,7 @@ int main() {
             bool back = false;
             //Load binary file to Random File structure
             do {
-                cout << "\n======== SELECT AN OPTION ========\n";
+                cout << "\n======== RANDOM FILE - SELECT AN OPTION ========\n";
                 cout << "\n1. INSERT RECORD\n2. SEARCH RECORD\n3. BACK\n4. EXIT\n";
                 cout << "\nInsert an option: ";
                 cin >> option;
@@ -36,6 +36,10 @@ int main() {
                     }
                     case 2: {
                         //Search a a record in Random File
+                        cout << "\nWrite Code to search: ";
+                        int code;
+                        cin >> code;
+                        randomFile.search(code);
                         break;
                     }
                     case 3: {

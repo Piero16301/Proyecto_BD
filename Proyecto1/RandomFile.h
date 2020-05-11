@@ -22,7 +22,7 @@ private:
         std::fstream outIndexFile;
         outIndexFile.open(indexFile, std::ios::out |std::ios::app | std::ios::binary);
         if(outIndexFile.is_open()){
-            outIndexFile.write((char *)(&code),  sizeof(code));       // Write Key
+            outIndexFile.write((char *)(&code), sizeof(code));       // Write Key
             outIndexFile.write((char *)(&row), sizeof(row));    // Write Row number
             outIndexFile << "\n";
             outIndexFile << std::flush;
@@ -41,7 +41,7 @@ private:
         std::ifstream inFile;
         inFile.open(dataFile, std::ios::in | std::ios::binary);
         Record record;
-        int row=1;
+        int row=0;
         while(inFile >> record) {
             updateIndexFile(record.getCode(), row);
             row++;
@@ -55,12 +55,25 @@ private:
         inFile.open(indexFile, std::ios::in | std::ios::binary);
         int keyCode;
         int rowDataFile;
-        for(int i = 1; i <= rowsIndexFile; i++){
+        for(int i = 0; i < rowsIndexFile; i++){
             inFile.read(reinterpret_cast<char *>(&keyCode), sizeof(rowDataFile));
             inFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
+            std::cout << keyCode << ", " << rowDataFile << '\n';
             indexRandomMap.insert({keyCode, rowDataFile});
             inFile.get();   // read endLine character
         }
+        inFile.close();
+    }
+
+    void readRecord(int row){
+        std::cout << "Reading record from data File in disk at row number: " << row << "\n";
+        Record record;
+        int sizeRecord = 54 + 1;
+        std::ifstream inFile;
+        inFile.open(dataFile, std::ios::in | std::ios::binary);
+        inFile.seekg(sizeRecord * row, std::ios::beg);
+        inFile >> record;
+        record.showData();
         inFile.close();
     }
 
@@ -84,7 +97,7 @@ public:
         inFile.open(indexFile, std::ios::in | std::ios::binary);
         int codeKey;
         int rowDataFile;
-        for(int i = 1; i <= rowsIndexFile; i++){
+        for(int i = 0; i < rowsIndexFile; i++){
             inFile.read(reinterpret_cast<char *>(&codeKey), 4);
             std::cout << codeKey << ", ";
             inFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
@@ -94,6 +107,18 @@ public:
         inFile.close();
     }
 
+    void search(int code){
+        std::cout << "\n*** Search method ***\n";
+        std::cout << "searching Code '" << code << "' (from index File in Memory RAM)\n";
+        auto itrResult = indexRandomMap.find(code);
+        if(itrResult != indexRandomMap.end()){
+            std::cout << "Code Found! row value is: " << itrResult->second << "\n";
+            readRecord(itrResult->second);
+        }
+        else{
+            std::cout << "Code '" << code << "' does not exist\n";
+        }
+    }
 };
 
 #endif //PROYECTO1_RANDOMFILE_H
