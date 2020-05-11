@@ -66,7 +66,7 @@ private:
     }
 
     void readRecord(int row){
-        std::cout << "Reading record from data File in disk at row number: " << row << "\n";
+        std::cout << "Reading record from data File in disk\n";
         Record record;
         int sizeRecord = 54 + 1;
         std::ifstream inFile;
@@ -83,7 +83,6 @@ public:
 
     // Custom Constructor
     RandomFile(std::string _dataFile){
-        std::cout << "Custom Constructor\n";
         dataFile = _dataFile;
         indexFile = "../indexRandom.dat";
         rowsIndexFile = 0;
@@ -119,6 +118,22 @@ public:
             std::cout << "Code '" << code << "' does not exist\n";
         }
     }
+
+    void insert(Record record) {
+        std::cout << "\n*** Insert method ***\n";
+        std::cout << "Inserting record code: " << record.getCode() << '\n';
+        std::fstream outFile;
+        outFile.open(dataFile, std::ios::out |std::ios::app | std::ios::binary);
+        // Update data File
+        outFile << record;
+        // Update indexRandomMap (Memory)
+        indexRandomMap.insert({record.getCode(), rowsIndexFile});
+        // Update IndexRandomFile (Disk)
+        updateIndexFile(record.getCode(), rowsIndexFile);
+        // Increase total number of Rows
+        rowsIndexFile++;
+    }
+
 };
 
 #endif //PROYECTO1_RANDOMFILE_H

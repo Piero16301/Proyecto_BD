@@ -8,24 +8,24 @@ int main() {
     do {
         int menu;
         cout << "======== SELECT AN OPTION ========\n1. RANDOM FILE\n2. STATIC HASH\n3. EXIT\n";
-        cout << "Insert an option: ";
+        cout << "Select an option: ";
         cin >> menu;
         Parser parser("../students.csv", "../Students");
         parser.csvToBinaryFile();
         RandomFile randomFile("../Students");
-        randomFile.showIndexRandomFile();
         if (menu == 1) {
+            // RANDOM FILE
             int option;
             bool back = false;
             //Load binary file to Random File structure
             do {
                 cout << "\n======== RANDOM FILE - SELECT AN OPTION ========\n";
-                cout << "\n1. INSERT RECORD\n2. SEARCH RECORD\n3. BACK\n4. EXIT\n";
-                cout << "\nInsert an option: ";
+                cout << "\n1. READ ALL RECORDS\n2. INSERT RECORD\n3. SEARCH RECORD\n4. BACK\n5. EXIT\n";
+                cout << "\nSelect an option: ";
                 cin >> option;
                 switch (option) {
                     case 1: {
-                        //Insert a new record to current Random File structure
+                        //READ ALL RECORDS
                         Record record{};
                         ifstream temp;
                         temp.open("../Students", std::ios::in | std::ios::binary);
@@ -35,18 +35,36 @@ int main() {
                         break;
                     }
                     case 2: {
-                        //Search a a record in Random File
+                        //INSERT NEW RECORD
+                        cout << "INSERT A NEW RECORD\n";
+                        int code;
+                        string Name,Surname,Career;
+                        cout << "Code: ";
+                        cin >> code;
+                        cout << "Name: ";
+                        cin >> Name;
+                        cout << "Surname: ";
+                        cin >> Surname;
+                        cout << "Career: ";
+                        cin >> Career;
+                        Record record(code, Name.c_str(), Surname.c_str(), Career.c_str());
+                        randomFile.insert(record);
+                        randomFile.showIndexRandomFile();
+                        break;
+                    }
+                    case 3: {
+                        //SEARCH A RECORD
                         cout << "\nWrite Code to search: ";
                         int code;
                         cin >> code;
                         randomFile.search(code);
                         break;
                     }
-                    case 3: {
+                    case 4: {
                         back = true;
                         break;
                     }
-                    case 4: {
+                    case 5: {
                         exit(0);
                     }
                     default: {
@@ -64,7 +82,7 @@ int main() {
             do {
                 cout << "\n======== SELECT AN OPTION ========\n";
                 cout << "\n1. INSERT RECORD\n2. SEARCH RECORD\n3. BACK\n4. EXIT\n";
-                cout << "\nInsert an option: ";
+                cout << "\nSelect an option: ";
                 cin >> option;
                 switch (option) {
                     case 1: {
