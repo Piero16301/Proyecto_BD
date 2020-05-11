@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Parser.h"
-
+#include "RandomFile.h"
 using namespace std;
 
 int main() {
@@ -12,6 +12,7 @@ int main() {
         cin >> menu;
         Parser parser("../students.csv", "../Students");
         parser.csvToBinaryFile();
+        RandomFile randomFile("../Students");
         if (menu == 1) {
             int option;
             bool back = false;
