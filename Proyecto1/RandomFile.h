@@ -36,6 +36,37 @@ private:
         outIndexFile.close();
     }
 
+    void updateIndexFileDeleteOperation(int code){
+        std::cout << "Update Index File (disk) Delete Operation\n";
+        std::fstream outIndexFile;
+        outIndexFile.open(indexFile, std::ios::out | std::ios::in | std::ios::binary);
+        if(outIndexFile.is_open()){
+            int codeKey;
+            int rowDataFile;
+            bool del;
+            long long int pos;
+            for(int i = 0; i < rowsIndexFile; i++){
+                outIndexFile.read(reinterpret_cast<char *>(&codeKey), 4);
+                if(codeKey == code){
+                    del = true;
+                    std::cout << "Found in index File\n";
+                    pos = outIndexFile.tellg();
+                    pos += 4;
+                    std::cout << "update pos:  " << pos << "\n";
+                    outIndexFile.seekp(pos, std::ios::beg);
+                    outIndexFile.write((char *)(&del), sizeof(del));
+                }
+                outIndexFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
+                outIndexFile.read(reinterpret_cast<char *>(&del), sizeof(del));
+                outIndexFile.get();   // read endLine character
+            }
+        }
+        else{
+            std::cout << "Error opening indexFile\n";
+        }
+        outIndexFile.close();
+    }
+
     void generateIndex() {
         std::cout << "\n** Generate Index File **\n";
         std::ofstream outIndexFile;
@@ -97,7 +128,6 @@ public:
         generateIndex();
         showIndexRandomFile();  // read from disk
         loadIndexRandomFile();  // load index to Ram
-
     }
 
     void showIndexRandomFile() {
@@ -130,6 +160,7 @@ public:
         }
         else{
             std::cout << "Code '" << code << "' does not exist\n";
+            showIndexRandomFile();
         }
     }
 
@@ -138,6 +169,7 @@ public:
         std::cout << "Inserting record code: " << record.getCode() << '\n';
         std::fstream outFile;
         outFile.open(dataFile, std::ios::out |std::ios::app | std::ios::binary);
+
         // Update data File
         outFile << record;
         // Update indexRandomMap (Memory)
@@ -145,6 +177,7 @@ public:
         // Update IndexRandomFile (Disk)
         bool del = false;
         updateIndexFile(record.getCode(), rowsIndexFile, del);
+
         // Increase total number of Rows
         rowsIndexFile++;
     }
@@ -156,6 +189,23 @@ public:
         temp.open(dataFile, std::ios::in | std::ios::binary);
         while (temp >> record) {
             record.showData();
+        }
+    }
+
+    void deleteRecord(int code){
+        std::cout << "\n*** Delete record ***\n";
+        auto itrResult = newIndexRandomMap.find(code);
+        if(itrResult != newIndexRandomMap.end() && !itrResult->second.second){
+            std::cout << "Code Found! row value is: " << itrResult->second.first << "\n";
+            std::cout << "Deleting record\n";
+            // Update index (Ram)
+            itrResult->second.second = true;
+            // Update index (disk)
+            updateIndexFileDeleteOperation(code);
+            showIndexRandomFile();
+        }
+        else{
+            std::cout << "Code '" << code << "' does not exist or is already deleted\n";
         }
     }
 
