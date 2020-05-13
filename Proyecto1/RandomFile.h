@@ -16,6 +16,7 @@ private:
     std::string dataFile;
     int rowsIndexFile;
     int sizeRecord;
+    int numDelRecords;
     std::map<int, int> indexRandomMap;
     std::map<int, pair<int, bool>> newIndexRandomMap;
 
@@ -125,6 +126,7 @@ public:
         indexFile = "../indexRandom.dat";
         rowsIndexFile = 0;
         sizeRecord = 85;
+        numDelRecords = 0;
         generateIndex();
         showIndexRandomFile();  // read from disk
         loadIndexRandomFile();  // load index to Ram
@@ -152,7 +154,6 @@ public:
     void search(int code){
         std::cout << "\n*** Search method ***\n";
         std::cout << "searching Code '" << code << "' (from index File in Memory RAM)\n";
-        //auto itrResult = indexRandomMap.find(code);
         auto itrResult = newIndexRandomMap.find(code);
         if(itrResult != newIndexRandomMap.end() && !itrResult->second.second){
             std::cout << "Code Found! row value is: " << itrResult->second.first << "\n";
@@ -185,10 +186,13 @@ public:
     void readAllRecords(){
         std::cout << "\n*** Read all records ***\n";
         Record record{};
-        ifstream temp;
-        temp.open(dataFile, std::ios::in | std::ios::binary);
-        while (temp >> record) {
-            record.showData();
+        ifstream data_File;
+        data_File.open(dataFile, std::ios::in | std::ios::binary);
+        while (data_File >> record) {
+            auto itrResult = newIndexRandomMap.find(record.getCode());
+            if(itrResult != newIndexRandomMap.end() && !itrResult->second.second){
+                record.showData();
+            }
         }
     }
 
@@ -202,6 +206,8 @@ public:
             itrResult->second.second = true;
             // Update index (disk)
             updateIndexFileDeleteOperation(code);
+            numDelRecords++;
+            // Validation - Show indexRandom File from Disk
             showIndexRandomFile();
         }
         else{
