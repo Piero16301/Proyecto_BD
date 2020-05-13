@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
-
+#include <utility>
 #include "Parser.h"
 #include "Record.h"
 
@@ -15,15 +15,18 @@ private:
     std::string indexFile;
     std::string dataFile;
     int rowsIndexFile;
+    int sizeRecord;
     std::map<int, int> indexRandomMap;
+    std::map<int, pair<int, bool>> newIndexRandomMap;
 
-    void updateIndexFile(int code, int row){
-        std::cout << code << "," << row << "\n";
+    void updateIndexFile(int code, int row, bool del){
+        std::cout << code << "," << row << "," << del << "\n";
         std::fstream outIndexFile;
         outIndexFile.open(indexFile, std::ios::out |std::ios::app | std::ios::binary);
         if(outIndexFile.is_open()){
             outIndexFile.write((char *)(&code), sizeof(code));       // Write Key
             outIndexFile.write((char *)(&row), sizeof(row));    // Write Row number
+            outIndexFile.write((char *)(&del), sizeof(del));    // Write Del status
             outIndexFile << "\n";
             outIndexFile << std::flush;
         }
@@ -34,7 +37,7 @@ private:
     }
 
     void generateIndex() {
-        std::cout << "\n** init Index File **\n";
+        std::cout << "\n** Generate Index File **\n";
         std::ofstream outIndexFile;
         outIndexFile.open(indexFile,std::ios::out | std::ios::trunc | std::ios::binary); // trunc 'discard existing content'
         outIndexFile.close();
@@ -42,8 +45,9 @@ private:
         inFile.open(dataFile, std::ios::in | std::ios::binary);
         Record record;
         int row=0;
+        bool del = false;
         while(inFile >> record) {
-            updateIndexFile(record.getCode(), row);
+            updateIndexFile(record.getCode(), row, del);
             row++;
         }
         rowsIndexFile = row;
@@ -55,11 +59,15 @@ private:
         inFile.open(indexFile, std::ios::in | std::ios::binary);
         int keyCode;
         int rowDataFile;
+        bool del;
         for(int i = 0; i < rowsIndexFile; i++){
             inFile.read(reinterpret_cast<char *>(&keyCode), sizeof(rowDataFile));
             inFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
-            std::cout << keyCode << ", " << rowDataFile << '\n';
-            indexRandomMap.insert({keyCode, rowDataFile});
+            inFile.read(reinterpret_cast<char *>(&del), sizeof(del));
+            std::cout << keyCode << ", " << rowDataFile << ", " << del << '\n';
+            //indexRandomMap.insert({keyCode, rowDataFile});
+            pair<int, bool> rowDelPair(rowDataFile,del);
+            newIndexRandomMap.insert(std::make_pair(keyCode, rowDelPair));
             inFile.get();   // read endLine character
         }
         inFile.close();
@@ -68,7 +76,6 @@ private:
     void readRecord(int row){
         std::cout << "Reading record from data File in disk\n";
         Record record;
-        int sizeRecord = 54 + 1;
         std::ifstream inFile;
         inFile.open(dataFile, std::ios::in | std::ios::binary);
         inFile.seekg(sizeRecord * row, std::ios::beg);
@@ -86,8 +93,11 @@ public:
         dataFile = _dataFile;
         indexFile = "../indexRandom.dat";
         rowsIndexFile = 0;
+        sizeRecord = 85;
         generateIndex();
-        loadIndexRandomFile();
+        showIndexRandomFile();  // read from disk
+        loadIndexRandomFile();  // load index to Ram
+
     }
 
     void showIndexRandomFile() {
@@ -96,11 +106,14 @@ public:
         inFile.open(indexFile, std::ios::in | std::ios::binary);
         int codeKey;
         int rowDataFile;
+        bool delStatus;
         for(int i = 0; i < rowsIndexFile; i++){
             inFile.read(reinterpret_cast<char *>(&codeKey), 4);
             std::cout << codeKey << ", ";
             inFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
-            std::cout << rowDataFile << "\n";
+            std::cout << rowDataFile << ", ";
+            inFile.read(reinterpret_cast<char *>(&delStatus), sizeof(delStatus));
+            std::cout << delStatus << "\n";
             inFile.get();   // read endLine character
         }
         inFile.close();
@@ -109,10 +122,11 @@ public:
     void search(int code){
         std::cout << "\n*** Search method ***\n";
         std::cout << "searching Code '" << code << "' (from index File in Memory RAM)\n";
-        auto itrResult = indexRandomMap.find(code);
-        if(itrResult != indexRandomMap.end()){
-            std::cout << "Code Found! row value is: " << itrResult->second << "\n";
-            readRecord(itrResult->second);
+        //auto itrResult = indexRandomMap.find(code);
+        auto itrResult = newIndexRandomMap.find(code);
+        if(itrResult != newIndexRandomMap.end() && !itrResult->second.second){
+            std::cout << "Code Found! row value is: " << itrResult->second.first << "\n";
+            readRecord(itrResult->second.first);
         }
         else{
             std::cout << "Code '" << code << "' does not exist\n";
@@ -129,9 +143,20 @@ public:
         // Update indexRandomMap (Memory)
         indexRandomMap.insert({record.getCode(), rowsIndexFile});
         // Update IndexRandomFile (Disk)
-        updateIndexFile(record.getCode(), rowsIndexFile);
+        bool del = false;
+        updateIndexFile(record.getCode(), rowsIndexFile, del);
         // Increase total number of Rows
         rowsIndexFile++;
+    }
+
+    void readAllRecords(){
+        std::cout << "\n*** Read all records ***\n";
+        Record record{};
+        ifstream temp;
+        temp.open(dataFile, std::ios::in | std::ios::binary);
+        while (temp >> record) {
+            record.showData();
+        }
     }
 
 };

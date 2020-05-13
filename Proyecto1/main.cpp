@@ -26,12 +26,7 @@ int main() {
                 switch (option) {
                     case 1: {
                         //READ ALL RECORDS
-                        Record record{};
-                        ifstream temp;
-                        temp.open("../Students", std::ios::in | std::ios::binary);
-                        while (temp >> record) {
-                            record.showData();
-                        }
+                        randomFile.readAllRecords();
                         break;
                     }
                     case 2: {
