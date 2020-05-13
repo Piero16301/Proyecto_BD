@@ -11,7 +11,7 @@ private:
     int Code{};
     char Name[25]{};
     char Surname[25]{};
-    char Career[15]{};
+    char Career[30]{};
 
     friend std::istream& operator >>(std::istream & stream, Record & record);
     friend std::ostream& operator <<(std::ostream & stream, Record & record);
@@ -43,7 +43,7 @@ std::ostream & operator << (std::ostream & stream, Record & record) {
     stream.write((char *)(&record.Code), sizeof(record.Code));
     stream.write(record.Name, 25);
     stream.write(record.Surname, 25);
-    stream.write(record.Career, 15);
+    stream.write(record.Career, 30);
     stream << '\n';
     stream << std::flush;
     return stream;
@@ -53,7 +53,7 @@ std::istream & operator >> (std::istream & stream, Record & record) {
     stream.read(reinterpret_cast<char *>(&record.Code), sizeof(record.Code));
     stream.read(record.Name, 25);
     stream.read(record.Surname, 25);
-    stream.read(record.Career, 15);
+    stream.read(record.Career, 30);
     stream.get();
     return stream;
 }
