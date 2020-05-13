@@ -20,7 +20,7 @@ int main() {
             //Load binary file to Random File structure
             do {
                 cout << "\n======== RANDOM FILE - SELECT AN OPTION ========\n";
-                cout << "\n1. READ ALL RECORDS\n2. INSERT RECORD\n3. SEARCH RECORD\n4. DELETE RECORD\n4. BACK\n5. EXIT\n";
+                cout << "\n1. READ ALL RECORDS\n2. INSERT RECORD\n3. SEARCH RECORD\n4. DELETE RECORD\n5. BACK\n6. EXIT\n";
                 cout << "\nSelect an option: ";
                 cin >> option;
                 switch (option) {
@@ -69,6 +69,7 @@ int main() {
                         break;
                     }
                     case 6: {
+                        // EXIT
                         exit(0);
                     }
                     default: {
