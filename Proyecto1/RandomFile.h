@@ -195,8 +195,8 @@ public:
 
     void search(int code){
         std::cout << "\n*** Search method ***\n";
-        auto t1 = std::chrono::high_resolution_clock::now();
         std::cout << "searching Code '" << code << "' (from index File in Memory RAM)\n";
+        auto t1 = std::chrono::high_resolution_clock::now();
         auto itrResult = newIndexRandomMap.find(code);
         if(itrResult != newIndexRandomMap.end() && !itrResult->second.second){
             std::cout << "Code Found! row value is: " << itrResult->second.first << "\n";
@@ -207,12 +207,13 @@ public:
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-        std::cout << "Duration: " << duration << " microseconds\n";
+        std::cout << "\nDuration: " << duration << " microseconds\n";
     }
 
     void insert(Record record) {
         std::cout << "\n*** Insert method ***\n";
         std::cout << "Inserting record code: " << record.getCode() << '\n';
+        auto t1 = std::chrono::high_resolution_clock::now();
         std::fstream outFile;
         // Check if exist deleted records
         int deletedKeyRecord = existDeletedRecords();
@@ -247,6 +248,9 @@ public:
             // Increase total number of Rows
             rowsIndexFile++;
         }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        std::cout << "\nDuration: " << duration << " microseconds\n";
     }
 
     void readAllRecords(){
