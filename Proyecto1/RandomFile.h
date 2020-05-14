@@ -9,6 +9,7 @@
 #include <utility>
 #include "Parser.h"
 #include "Record.h"
+#include <chrono>
 
 class RandomFile {
 private:
@@ -17,7 +18,6 @@ private:
     int rowsIndexFile;
     int sizeRecord;
     int numDelRecords;
-    std::map<int, int> indexRandomMap;
     std::map<int, pair<int, bool>> newIndexRandomMap;
 
     void updateIndexFile(int code, int row, bool del){
@@ -194,6 +194,7 @@ public:
 
     void search(int code){
         std::cout << "\n*** Search method ***\n";
+        auto t1 = std::chrono::high_resolution_clock::now();
         std::cout << "searching Code '" << code << "' (from index File in Memory RAM)\n";
         auto itrResult = newIndexRandomMap.find(code);
         if(itrResult != newIndexRandomMap.end() && !itrResult->second.second){
@@ -202,8 +203,10 @@ public:
         }
         else{
             std::cout << "Code '" << code << "' does not exist\n";
-            showIndexRandomFile();
         }
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        std::cout << "Duration: " << duration << " microseconds\n";
     }
 
     void insert(Record record) {
