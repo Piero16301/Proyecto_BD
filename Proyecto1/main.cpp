@@ -12,11 +12,11 @@ int main() {
         cin >> menu;
         Parser parser("../1000students.csv", "../Students.dat");
         parser.csvToBinaryFile();
-        RandomFile randomFile("../Students.dat");
         if (menu == 1) {
             // RANDOM FILE
             int option;
             bool back = false;
+            RandomFile randomFile("../Students.dat");
             //Load binary file to Random File structure
             do {
                 cout << "\n======== RANDOM FILE - SELECT AN OPTION ========\n";

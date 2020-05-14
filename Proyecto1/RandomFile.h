@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <vector>
 #include <map>
 #include <utility>
@@ -15,9 +16,9 @@ class RandomFile {
 private:
     std::string indexFile;
     std::string dataFile;
-    int rowsIndexFile;
-    int sizeRecord;
-    int numDelRecords;
+    int rowsIndexFile{};
+    int sizeRecord{};
+    int numDelRecords{};
     std::map<int, pair<int, bool>> newIndexRandomMap;
 
     void updateIndexFile(int code, int row, bool del){
@@ -162,8 +163,8 @@ public:
     RandomFile() = default;
 
     // Custom Constructor
-    RandomFile(std::string _dataFile){
-        dataFile = _dataFile;
+    explicit RandomFile(std::string _dataFile){
+        dataFile = std::move(_dataFile);
         indexFile = "../indexRandom.dat";
         rowsIndexFile = 0;
         sizeRecord = 85;
