@@ -44,7 +44,6 @@ int main() {
                         cin >> Career;
                         Record record(code, Name.c_str(), Surname.c_str(), Career.c_str());
                         randomFile.insert(record);
-                        randomFile.showIndexRandomFile();
                         break;
                     }
                     case 3: {

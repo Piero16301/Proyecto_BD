@@ -21,6 +21,7 @@ private:
     std::map<int, pair<int, bool>> newIndexRandomMap;
 
     void updateIndexFile(int code, int row, bool del){
+        std::cout << "Update Index File (disk)\n";
         std::cout << code << "," << row << "," << del << "\n";
         std::fstream outIndexFile;
         outIndexFile.open(indexFile, std::ios::out |std::ios::app | std::ios::binary);
@@ -50,12 +51,43 @@ private:
                 outIndexFile.read(reinterpret_cast<char *>(&codeKey), 4);
                 if(codeKey == code){
                     del = true;
-                    std::cout << "Found in index File\n";
                     pos = outIndexFile.tellg();
                     pos += 4;
-                    std::cout << "update pos:  " << pos << "\n";
                     outIndexFile.seekp(pos, std::ios::beg);
                     outIndexFile.write((char *)(&del), sizeof(del));
+                }
+                outIndexFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
+                outIndexFile.read(reinterpret_cast<char *>(&del), sizeof(del));
+                outIndexFile.get();   // read endLine character
+            }
+        }
+        else{
+            std::cout << "Error opening indexFile\n";
+        }
+        outIndexFile.close();
+    }
+
+    void updateIndexFileReUseDelSpace(int deletedCode, int newCode, int row){
+        std::cout << "Update Index File (disk) ReUse Deleted Space\n";
+        std::cout << "Searching deleted record: " << deletedCode << ", to insert new Key record: " << newCode << '\n';
+        std::fstream outIndexFile;
+        outIndexFile.open(indexFile, std::ios::out | std::ios::in | std::ios::binary);
+        if(outIndexFile.is_open()){
+            int codeKey, rowDataFile;
+            long long int pos;
+            bool del;
+            for(int i = 0; i < rowsIndexFile; i++){
+                outIndexFile.read(reinterpret_cast<char *>(&codeKey), sizeof(codeKey));
+                if(codeKey == deletedCode){
+                    bool delStatus = false;
+                    std::cout << "Updating deleted record in index File\n";
+                    pos = outIndexFile.tellg();
+                    pos -= 4;
+                    outIndexFile.seekp(pos, std::ios::beg);
+                    outIndexFile.write((char *)(&newCode), sizeof(newCode));
+                    outIndexFile.write((char *)(&row), sizeof(row));
+                    outIndexFile.write((char *)(&del), sizeof(delStatus));
+                    break;
                 }
                 outIndexFile.read(reinterpret_cast<char *>(&rowDataFile), sizeof(rowDataFile));
                 outIndexFile.read(reinterpret_cast<char *>(&del), sizeof(del));
@@ -116,6 +148,15 @@ private:
         inFile.close();
     }
 
+    int existDeletedRecords(){
+        for(auto element : newIndexRandomMap){
+            if(element.second.second){
+                return element.first;   // return keyCode
+            }
+        }
+        return -1;
+    }
+
 public:
     // Default Constructor
     RandomFile() = default;
@@ -169,18 +210,39 @@ public:
         std::cout << "\n*** Insert method ***\n";
         std::cout << "Inserting record code: " << record.getCode() << '\n';
         std::fstream outFile;
-        outFile.open(dataFile, std::ios::out |std::ios::app | std::ios::binary);
-
-        // Update data File
-        outFile << record;
-        // Update indexRandomMap (Memory)
-        indexRandomMap.insert({record.getCode(), rowsIndexFile});
-        // Update IndexRandomFile (Disk)
-        bool del = false;
-        updateIndexFile(record.getCode(), rowsIndexFile, del);
-
-        // Increase total number of Rows
-        rowsIndexFile++;
+        // Check if exist deleted records
+        int deletedKeyRecord = existDeletedRecords();
+        if(deletedKeyRecord >= 0){
+            // Update Index Map (Ram)
+            auto itrResult = newIndexRandomMap.find(deletedKeyRecord);
+            int rowNumber = itrResult->second.first;
+            newIndexRandomMap.erase(itrResult); // Delete deleted record from Map
+            // Create new entry in indexMap
+            bool del = false;
+            pair<int, bool> rowReuseDelPair(rowNumber, del);
+            newIndexRandomMap.insert(std::make_pair(record.getCode(), rowReuseDelPair));
+            // Update Index File (disk)
+            updateIndexFileReUseDelSpace(deletedKeyRecord, record.getCode(), rowNumber);
+            showIndexRandomFile();
+            // Insert record in DataFile
+            outFile.open(dataFile, std::ios::out | std::ios::in | std::ios::binary);
+            outFile.seekp(sizeRecord * rowNumber, std::ios::beg);
+            outFile << record;
+        }
+        else{
+            // If not exist deleted records. Update data File
+            outFile.open(dataFile, std::ios::out |std::ios::app | std::ios::binary);
+            outFile << record;
+            // Update indexRandomMap (Memory)
+            //indexRandomMap.insert({record.getCode(), rowsIndexFile});
+            bool del = false;
+            pair<int, bool> rowDelPair(rowsIndexFile,del);
+            newIndexRandomMap.insert(std::make_pair(record.getCode(), rowDelPair));
+            // Update IndexRandomFile (Disk)
+            updateIndexFile(record.getCode(), rowsIndexFile, del);
+            // Increase total number of Rows
+            rowsIndexFile++;
+        }
     }
 
     void readAllRecords(){
