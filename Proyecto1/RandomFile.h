@@ -168,7 +168,7 @@ public:
         rowsIndexFile = 0;
         sizeRecord = 85;
         numDelRecords = 0;
-        generateIndex();
+        generateIndex();        // generate index in disk
         showIndexRandomFile();  // read from disk
         loadIndexRandomFile();  // load index to Ram
     }

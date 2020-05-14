@@ -10,9 +10,9 @@ int main() {
         cout << "======== SELECT AN OPTION ========\n1. RANDOM FILE\n2. STATIC HASH\n3. EXIT\n";
         cout << "Select an option: ";
         cin >> menu;
-        Parser parser("../students.csv", "../Students");
+        Parser parser("../1000students.csv", "../Students.dat");
         parser.csvToBinaryFile();
-        RandomFile randomFile("../Students");
+        RandomFile randomFile("../Students.dat");
         if (menu == 1) {
             // RANDOM FILE
             int option;
