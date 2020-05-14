@@ -65,19 +65,37 @@ public:
         int index = hashingFunction(record.getCode());
         long address = indexHashing.at(index);
         Bucket bucket = getBucket(address);
+        cout << endl << record.getCode() << " pertenece al bucket " <<
+                address/sizeof(Bucket) << endl;
+
         if (bucket.count >= FB) {
-            if (bucket.next_overflow == -1) {
-                createOvfBucket(bucket, bucketCount);
-            }
+            cout << "bucket " << address/sizeof(Bucket) << " esta lleno\n";
+            cout << "recorrido de overflow: " << address/sizeof(Bucket);
             while (bucket.next_overflow > 0) {
                 address = bucket.next_overflow;
+                cout  << " -> " << address/sizeof(Bucket);
                 bucket = getBucket(bucket.next_overflow);
-            }
-        } insertIntoBucket(record, bucket, address);
-        //bucket.insertRecord(record, address);
+            } cout << endl;
+        }
+
+        bucket.insertRecord(record, address);
+        cout << "Se inserto registro " << record.getCode() <<
+                " en bucket " << address/sizeof(Bucket) << endl;
+
+        if (bucket.count == FB) {
+            bucket.createOverflow(address, bucketCount);
+            bucketCount++;
+            cout << "Bucket lleno, se crea overflow\n";
+        }
     }
 
-
+    void showInfo() {
+        for (int i = 0; i < bucketCount; ++i) {
+            cout << endl << "Bucket " << i << endl;
+            Bucket bucket = getBucket(i*(int)sizeof(Bucket));
+            bucket.showRecords();
+        }
+    }
 
 };
 
