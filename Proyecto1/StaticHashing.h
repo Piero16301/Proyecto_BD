@@ -33,7 +33,7 @@ class StaticHashing {
         //for (auto x : indexHashing) cout << x.first << " " << x.second << endl;
     }
 
-    void buildDataFile(const string& data) {
+    void buildDataFile() {
         fstream dataHash;
         dataHash.open(dataHashFile, ios::out | ios::trunc);
         dataHash.close();
@@ -47,6 +47,25 @@ class StaticHashing {
         dataHash.close();
     }
 
+    void getInitialData(const string& data) {
+        fstream file;
+        Record temp;
+        file.open(data, ios::in | ios::binary);
+        while (file >> temp)
+            this->insert(temp);
+        file.close();
+    }
+
+    Bucket getBucket(long address) {
+        Bucket temp;
+        fstream file;
+        file.open(HASH_FILE_NAME, ios::in | ios::binary);
+        file.seekg(address);
+        file >> temp;
+        file.close();
+        return temp;
+    }
+
     static int hashingFunction(int key) {
         return key % MB;
     }
@@ -58,26 +77,45 @@ public:
         this->dataHashFile = HASH_FILE_NAME;
         this->indexFile = "../indexHashing.dat";
         buildIndex();
-        buildDataFile(data);
+        buildDataFile();
+        getInitialData(data);
     }
 
     void insert(Record record) {
         int index = hashingFunction(record.getCode());
         long address = indexHashing.at(index);
         Bucket bucket = getBucket(address);
+        cout << endl << record.getCode() << " pertenece al bucket " <<
+                address/sizeof(Bucket) << endl;
+
         if (bucket.count >= FB) {
-            if (bucket.next_overflow == -1) {
-                createOvfBucket(bucket, bucketCount);
-            }
+            cout << "bucket " << address/sizeof(Bucket) << " esta lleno\n";
+            cout << "recorrido de overflow: " << address/sizeof(Bucket);
             while (bucket.next_overflow > 0) {
                 address = bucket.next_overflow;
                 bucket = getBucket(bucket.next_overflow);
-            }
-        } insertIntoBucket(record, bucket, address);
-        //bucket.insertRecord(record, address);
+                cout  << " -> " << address/sizeof(Bucket);
+            } cout << endl;
+        }
+
+        bucket.insertRecord(record, address);
+        cout << "Se inserto registro " << record.getCode() <<
+                " en bucket " << address/sizeof(Bucket) << endl;
+
+        if (bucket.count == FB) {
+            bucket.createOverflow(address, bucketCount);
+            bucketCount++;
+            cout << "Bucket lleno, se crea overflow\n";
+        }
     }
 
-
+    void showData() {
+        for (int i = 0; i < bucketCount; ++i) {
+            cout << endl << "Bucket " << i << endl;
+            Bucket bucket = getBucket(i*(int)sizeof(Bucket));
+            bucket.showRecords();
+        }
+    }
 
 };
 
