@@ -43,12 +43,6 @@ void Bucket::insertRecord(Record record, long address) {
         }
     }
     if (i >= FB) cout << "Error de insercion\n";
-    /*Bucket tmp;
-    file.open(HASH_FILE_NAME, ios::in|ios::out|ios::binary);
-    file.seekg(address);
-    file >> tmp;
-    file.close();
-    tmp.records[0].showData();*/
 }
 
 void Bucket::createOverflow(long address, int position) {
@@ -71,16 +65,6 @@ void Bucket::showRecords() {
             records[i].showData();
         }
     }
-}
-
-Bucket getBucket(long address) {
-    Bucket temp;
-    fstream file;
-    file.open(HASH_FILE_NAME, ios::in | ios::binary);
-    file.seekg(address);
-    file >> temp;
-    file.close();
-    return temp;
 }
 
 #endif //PROYECTO1_BUCKET_H
