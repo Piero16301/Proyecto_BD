@@ -102,15 +102,18 @@ public:
             } cout << endl;
         }
 
+        if (bucket.count == FB) {
+            cout << "bucket " << address / BucketSize << " ya estaba lleno, se crea overflow\n";
+            bucket.createOverflow(bucketCount);
+            bucketCount++;
+            address = bucket.next_overflow;
+            bucket = getBucket(address);
+        }
+
         bucket.insertRecord(record);
         cout << "Se inserto registro " << record.getCode() <<
              " en bucket " << address / BucketSize << endl;
 
-        if (bucket.count == FB) {
-            bucket.createOverflow(bucketCount);
-            bucketCount++;
-            cout << "Bucket lleno, se crea overflow\n";
-        }
     }
 
     void search(int code) {
