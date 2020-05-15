@@ -120,6 +120,7 @@ int main() {
                         int code;
                         cin >> code;
                         staticHashing.search(code);
+                        break;
                     }
                     case 4: {
                         back = true;
