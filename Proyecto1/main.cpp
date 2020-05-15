@@ -116,7 +116,10 @@ int main() {
                     }
                     case 3: {
                         //SEARCH RECORD
-
+                        cout << "\nWrite Code to search: ";
+                        int code;
+                        cin >> code;
+                        staticHashing.search(code);
                     }
                     case 4: {
                         back = true;
