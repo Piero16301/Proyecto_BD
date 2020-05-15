@@ -117,6 +117,7 @@ public:
     }
 
     void search(int code) {
+        auto t1 = std::chrono::high_resolution_clock::now();
         int index = hashingFunction(code);
         long address = indexHashing.at(index);
         bool found = false;
@@ -135,8 +136,15 @@ public:
                 return;
             }
         }
-        cout << "\n Codigo encontrado";
+        cout << "\nCodigo encontrado\n";
         record.showData();
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        std::cout << "\nDuration: " << duration << " microseconds\n";
+
+        //Heap file comparison
+        HeapFile heapFile;
+        heapFile.search(code);
     }
 
     void showData() const {

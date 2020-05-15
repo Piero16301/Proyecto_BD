@@ -32,11 +32,13 @@ istream& operator >> (istream& stream, Bucket& bucket) {
 
 bool Bucket::findRecord(int code, Record& record) {
     if (this->count == 0) return false;
-    for (int i = 0; i < FB; ++i)
+    for (int i = 0; i < FB; ++i) {
         if (taken[i] && records[i].getCode() == code) {
             record = records[i];
             return true;
         }
+    }
+    return false;
 }
 
 void Bucket::insertRecord(Record record) {

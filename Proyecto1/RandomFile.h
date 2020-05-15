@@ -212,7 +212,7 @@ public:
         std::cout << "\nDuration: " << duration << " microseconds\n";
 
         //Heap file comparison
-        HeapFile heapFile(dataFile);
+        HeapFile heapFile;
         heapFile.search(code);
     }
 
