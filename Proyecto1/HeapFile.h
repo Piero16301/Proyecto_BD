@@ -10,12 +10,10 @@
 
 class HeapFile {
 private:
-    std::string dataFile;
+    std::string dataFile = "../Students.dat";
 
 public:
     HeapFile() = default;
-
-    explicit HeapFile(std::string _dataFile) : dataFile{std::move(_dataFile)} {}
 
     void search(int code) {
         Record record{};

@@ -115,10 +115,12 @@ public:
 
     void search(int code) {
         cout << "\n*** Search method ***\n";
+        auto t1 = std::chrono::high_resolution_clock::now();
         int index = hashingFunction(code);
         long address = indexHashing.at(index);
         Bucket temp = getBucket(address);
         Record record;
+
         bool found = temp.findRecord(code, record);
         while (!found) {
             if (temp.next_overflow > 0)
@@ -132,6 +134,14 @@ public:
             record.showData();
         }
         else cout << " no encontrado\n";
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        std::cout << "\nDuration: " << duration << " microseconds\n";
+
+        //Heap file comparison
+        HeapFile heapFile;
+        heapFile.search(code);
     }
 
     void showData() const {
