@@ -1,10 +1,12 @@
 #ifndef PROYECTO1_STATICHASHING_H
 #define PROYECTO1_STATICHASHING_H
 
-#define MB 6 // Numero de bloques
+#define MB 100 // Numero de bloques
 
 #include <utility>
 #include <vector>
+#include <map>
+
 #include "Parser.h"
 #include "Bucket.h"
 
@@ -56,7 +58,7 @@ class StaticHashing {
         file.close();
     }
 
-    Bucket getBucket(long address) {
+    static Bucket getBucket(long address) {
         Bucket temp;
         fstream file;
         file.open(HASH_FILE_NAME, ios::in | ios::binary);
@@ -109,7 +111,7 @@ public:
         }
     }
 
-    void showData() {
+    void showData() const {
         for (int i = 0; i < bucketCount; ++i) {
             cout << endl << "Bucket " << i << endl;
             Bucket bucket = getBucket(i*(int)sizeof(Bucket));

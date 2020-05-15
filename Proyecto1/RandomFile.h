@@ -8,9 +8,11 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <chrono>
+
 #include "Parser.h"
 #include "Record.h"
-#include <chrono>
+#include "HeapFile.h"
 
 class RandomFile {
 private:
@@ -208,6 +210,10 @@ public:
         auto t2 = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
         std::cout << "\nDuration: " << duration << " microseconds\n";
+
+        //Heap file comparison
+        HeapFile heapFile(dataFile);
+        heapFile.search(code);
     }
 
     void insert(Record record) {
