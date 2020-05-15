@@ -33,6 +33,13 @@ public:
         cout << "Career: " << this->Career << endl;
     }
 
+    void showRecord() {
+        printf("| %*d |", 8, this->Code);
+        printf(" %-25s |", this->Name);
+        printf(" %-25s |", this->Surname);
+        printf(" %-30s |\n", this->Career);
+    }
+
     int getCode() const {
         return this->Code;
     }

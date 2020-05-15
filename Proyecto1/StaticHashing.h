@@ -145,11 +145,16 @@ public:
     }
 
     void showData() const {
+        cout << endl;
+        for (int i = 0; i < 101 ; ++i) cout << "-"; cout << "\n";
+        printf("| %-8s | %-25s | %-25s | %-30s |\n", "  Codigo", "Nombre", "Apellido", "Carrera");
+        for (int i = 0; i < 101 ; ++i) cout << "-"; cout << "\n";
         for (int i = 0; i < bucketCount; ++i) {
-            cout << endl << "Bucket " << i << endl;
+            //cout << endl << "Bucket " << i << endl;
             Bucket bucket = getBucket(i * BucketSize);
             bucket.showRecords();
         }
+        for (int i = 0; i < 101 ; ++i) cout << "-"; cout << "\n";
     }
 
 };
