@@ -32,7 +32,6 @@ class StaticHashing {
             }
         }
         index.close();
-        //for (auto x : indexHashing) cout << x.first << " " << x.second << endl;
     }
 
     void buildDataFile() {
@@ -46,8 +45,6 @@ class StaticHashing {
             dataHash << temp_bucket;
         }
         bucketCount = MB;
-        //long byte = dataHash.tellg();
-        //cout << "File size in: " << byte/BucketSize << endl;
         dataHash.close();
     }
 
@@ -117,26 +114,24 @@ public:
     }
 
     void search(int code) {
+        cout << "\n*** Search method ***\n";
         int index = hashingFunction(code);
         long address = indexHashing.at(index);
-        bool found = false;
         Bucket temp = getBucket(address);
         Record record;
-        while (temp.next_overflow > 0) {
-            if (temp.findRecord(code, record)) {
-                found = true;
-                break;
-            } temp = getBucket(temp.next_overflow);
-        }
-        if (!found) {
+        bool found = temp.findRecord(code, record);
+        while (!found) {
+            if (temp.next_overflow > 0)
+                temp = getBucket(temp.next_overflow);
+            else break;
             found = temp.findRecord(code, record);
-            if (!found) {
-                cout << "Codigo no encontrado\n";
-                return;
-            }
         }
-        cout << "\n Codigo encontrado";
-        record.showData();
+        cout << "Codigo " << code;
+        if (found) {
+            cout << " encontrado\n";
+            record.showData();
+        }
+        else cout << " no encontrado\n";
     }
 
     void showData() const {
