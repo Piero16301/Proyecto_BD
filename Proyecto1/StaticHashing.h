@@ -83,6 +83,7 @@ public:
     }
 
     void insert(Record record) {
+        auto t1 = std::chrono::high_resolution_clock::now();
         int index = hashingFunction(record.getCode());
         long address = indexHashing.at(index);
         Bucket bucket = getBucket(address);
@@ -110,6 +111,10 @@ public:
         bucket.insertRecord(record);
         cout << "Se inserto registro " << record.getCode() <<
              " en bucket " << address / BucketSize << endl;
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+        std::cout << "\nDuration: " << duration << " microseconds\n";
 
     }
 
