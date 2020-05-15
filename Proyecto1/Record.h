@@ -33,7 +33,7 @@ public:
         cout << "Career: " << this->Career << endl;
     }
 
-    int getCode() {
+    int getCode() const {
         return this->Code;
     }
 
