@@ -8,26 +8,38 @@
 
 struct Bucket {
     Record records[FB];
-    //int position = -1;
+    long address = -1;
     long next_overflow = -1;
     bool taken[FB]{};
     int count{};
-    void insertRecord(Record record, long address);
-    void createOverflow(long address, int position);
+    bool findRecord(int code, Record& record);
+    void insertRecord(Record record);
+    void createOverflow(int totalBuckets);
     void showRecords();
 };
 
+const int BucketSize = (int)sizeof(Bucket);
+
 ostream& operator << (ostream& stream, Bucket& bucket) {
-    stream.write((char*)&bucket, sizeof(Bucket));
+    stream.write((char*)&bucket, BucketSize);
     return stream;
 }
 
 istream& operator >> (istream& stream, Bucket& bucket) {
-    stream.read((char*)&bucket, sizeof(Bucket));
+    stream.read((char*)&bucket, BucketSize);
     return stream;
 }
 
-void Bucket::insertRecord(Record record, long address) {
+bool Bucket::findRecord(int code, Record& record) {
+    if (this->count == 0) return false;
+    for (int i = 0; i < FB; ++i)
+        if (taken[i] && records[i].getCode() == code) {
+            record = records[i];
+            return true;
+        }
+}
+
+void Bucket::insertRecord(Record record) {
     fstream file;
     int i;
     for (i = 0; i < FB; ++i) {
@@ -36,24 +48,23 @@ void Bucket::insertRecord(Record record, long address) {
             this->taken[i] = true;
             this->count++;
             file.open(HASH_FILE_NAME, ios::in|ios::out|ios::binary);
-            file.seekg(address);
+            file.seekg(this->address);
             file << *this;
             file.close();
             break;
         }
-    }
-    if (i >= FB) cout << "Error de insercion\n";
+    } if (i >= FB) cout << "Error de insercion\n";
 }
 
-void Bucket::createOverflow(long address, int position) {
+void Bucket::createOverflow(int totalBuckets) {
     Bucket ovf_bucket;
+    this->next_overflow = ovf_bucket.address = totalBuckets * BucketSize;
     fstream file;
-    file.open(HASH_FILE_NAME, ios::in|ios::out|ios::app|ios::binary);
+    file.open(HASH_FILE_NAME, ios::out|ios::app|ios::binary);
     file << ovf_bucket;
     file.close();
-    this->next_overflow = position * (int)sizeof(Bucket);
     file.open(HASH_FILE_NAME, ios::in|ios::out|ios::binary);
-    file.seekg(address);
+    file.seekg(this->address);
     file << *this;
     file.close();
 }

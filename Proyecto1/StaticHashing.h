@@ -22,8 +22,8 @@ class StaticHashing {
         index.close();
         index.open(indexFile,ios::out|ios::app|ios::binary);
         if (index) {
-            for (int i=0; i<MB; ++i) {
-                long address = i*(int)sizeof(Bucket);
+            for (int i = 0; i < MB; ++i) {
+                long address = i * BucketSize;
                 index.write((char *)(&i), sizeof(int));           // Write Key
                 index.write((char *)(&address), sizeof(long));    // Write bucket address
                 indexHashing[i] = address;                        // Load key-address
@@ -39,11 +39,13 @@ class StaticHashing {
         dataHash.close();
         Bucket temp_bucket;
         dataHash.open(dataHashFile, ios::out | ios::app | ios::binary);
-        for (int i = 0; i < MB; ++i)
+        for (int i = 0; i < MB; ++i) {
+            temp_bucket.address = i * BucketSize;
             dataHash << temp_bucket;
+        }
         bucketCount = MB;
         //long byte = dataHash.tellg();
-        //cout << "File size in: " << byte/sizeof(Bucket) << endl;
+        //cout << "File size in: " << byte/BucketSize << endl;
         dataHash.close();
     }
 
@@ -56,7 +58,7 @@ class StaticHashing {
         file.close();
     }
 
-    Bucket getBucket(long address) {
+    static Bucket getBucket(long address) {
         Bucket temp;
         fstream file;
         file.open(HASH_FILE_NAME, ios::in | ios::binary);
@@ -86,33 +88,56 @@ public:
         long address = indexHashing.at(index);
         Bucket bucket = getBucket(address);
         cout << endl << record.getCode() << " pertenece al bucket " <<
-                address/sizeof(Bucket) << endl;
+             address / BucketSize << endl;
 
         if (bucket.count >= FB) {
-            cout << "bucket " << address/sizeof(Bucket) << " esta lleno\n";
-            cout << "recorrido de overflow: " << address/sizeof(Bucket);
+            cout << "bucket " << address / BucketSize << " esta lleno\n";
+            cout << "recorrido de overflow: " << address / BucketSize;
             while (bucket.next_overflow > 0) {
                 address = bucket.next_overflow;
-                bucket = getBucket(bucket.next_overflow);
-                cout  << " -> " << address/sizeof(Bucket);
+                bucket = getBucket(address);
+                cout  << " -> " << address / BucketSize;
             } cout << endl;
         }
 
-        bucket.insertRecord(record, address);
+        bucket.insertRecord(record);
         cout << "Se inserto registro " << record.getCode() <<
-                " en bucket " << address/sizeof(Bucket) << endl;
+             " en bucket " << address / BucketSize << endl;
 
         if (bucket.count == FB) {
-            bucket.createOverflow(address, bucketCount);
+            bucket.createOverflow(bucketCount);
             bucketCount++;
             cout << "Bucket lleno, se crea overflow\n";
         }
     }
 
-    void showData() {
+    void search(int code) {
+        int index = hashingFunction(code);
+        long address = indexHashing.at(index);
+        bool found = false;
+        Bucket temp = getBucket(address);
+        Record record;
+        while (temp.next_overflow > 0) {
+            if (temp.findRecord(code, record)) {
+                found = true;
+                break;
+            } temp = getBucket(temp.next_overflow);
+        }
+        if (!found) {
+            found = temp.findRecord(code, record);
+            if (!found) {
+                cout << "Codigo no encontrado\n";
+                return;
+            }
+        }
+        cout << "\n Codigo encontrado";
+        record.showData();
+    }
+
+    void showData() const {
         for (int i = 0; i < bucketCount; ++i) {
             cout << endl << "Bucket " << i << endl;
-            Bucket bucket = getBucket(i*(int)sizeof(Bucket));
+            Bucket bucket = getBucket(i * BucketSize);
             bucket.showRecords();
         }
     }
