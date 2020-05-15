@@ -75,7 +75,7 @@ void Bucket::showRecords() {
     if (count == 0) return;
     for (int i = 0; i < FB; ++i) {
         if (taken[i]) {
-            records[i].showRecord();
+            records[i].showRecord(address/BucketSize);
         }
     }
 }
