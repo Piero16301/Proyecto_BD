@@ -2,6 +2,8 @@
 
 #include "Parser.h"
 #include "RandomFile.h"
+#include "StaticHashing.h"
+
 using namespace std;
 
 int main() {
@@ -10,13 +12,13 @@ int main() {
         cout << "======== SELECT AN OPTION ========\n1. RANDOM FILE\n2. STATIC HASH\n3. EXIT\n";
         cout << "Select an option: ";
         cin >> menu;
-        Parser parser("../students.csv", "../Students");
+        Parser parser("../1000students.csv", "../Students.dat");
         parser.csvToBinaryFile();
-        RandomFile randomFile("../Students");
         if (menu == 1) {
             // RANDOM FILE
             int option;
             bool back = false;
+            RandomFile randomFile("../Students.dat");
             //Load binary file to Random File structure
             do {
                 cout << "\n======== RANDOM FILE - SELECT AN OPTION ========\n";
@@ -83,25 +85,44 @@ int main() {
             int option;
             bool back = false;
             //Load binary file to Static Hash structure
+            StaticHashing staticHashing("../Students.dat");
             do {
                 cout << "\n======== SELECT AN OPTION ========\n";
-                cout << "\n1. INSERT RECORD\n2. SEARCH RECORD\n3. BACK\n4. EXIT\n";
+                cout << "\n1. READ ALL RECORDS\n2. INSERT RECORD\n3. SEARCH RECORD\n4. BACK\n5. EXIT\n";
                 cout << "\nSelect an option: ";
                 cin >> option;
                 switch (option) {
                     case 1: {
-                        //Insert a new record to current Static Hash structure
+                        //READ ALL
+                        staticHashing.showData();
                         break;
                     }
                     case 2: {
-                        //Search a a record in Static Hash
+                        //INSERT RECORD
+                        cout << "INSERT A NEW RECORD\n";
+                        int code;
+                        string Name,Surname,Career;
+                        cout << "Code: ";
+                        cin >> code;
+                        cout << "Name: ";
+                        cin >> Name;
+                        cout << "Surname: ";
+                        cin >> Surname;
+                        cout << "Career: ";
+                        cin >> Career;
+                        Record record(code, Name.c_str(), Surname.c_str(), Career.c_str());
+                        staticHashing.insert(record);
                         break;
                     }
                     case 3: {
+                        //SEARCH RECORD
+
+                    }
+                    case 4: {
                         back = true;
                         break;
                     }
-                    case 4: {
+                    case 5: {
                         exit(0);
                     }
                     default: {

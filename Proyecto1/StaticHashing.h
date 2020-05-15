@@ -1,10 +1,12 @@
 #ifndef PROYECTO1_STATICHASHING_H
 #define PROYECTO1_STATICHASHING_H
 
-#define MB 6 // Numero de bloques
+#define MB 100 // Numero de bloques
 
 #include <utility>
 #include <vector>
+#include <map>
+
 #include "Parser.h"
 #include "Bucket.h"
 

@@ -1,7 +1,7 @@
 #ifndef PROYECTO1_BUCKET_H
 #define PROYECTO1_BUCKET_H
 
-#define FB 4            // Factor de bloque
+#define FB 10            // Factor de bloque
 #define HASH_FILE_NAME "../dataHashing.dat"
 
 #include "Record.h"
