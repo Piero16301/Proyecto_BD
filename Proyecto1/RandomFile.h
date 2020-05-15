@@ -245,7 +245,6 @@ public:
             outFile.open(dataFile, std::ios::out |std::ios::app | std::ios::binary);
             outFile << record;
             // Update indexRandomMap (Memory)
-            //indexRandomMap.insert({record.getCode(), rowsIndexFile});
             bool del = false;
             pair<int, bool> rowDelPair(rowsIndexFile,del);
             newIndexRandomMap.insert(std::make_pair(record.getCode(), rowDelPair));
